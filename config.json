@@ -1,0 +1,9 @@
+{
+  "_comment" : "keyword: $time, $date, $version, $prefix, $valid, $sha256",
+  "version": "1.0.0",
+  "prefix": "[Vaccum $version] >>>",
+  "clearOnRun" : "True",
+  "welcomeMessage":  "\n┏ Welcome to the Vaccum prompt ┓\n┃Date: $date        ┃\n┃Time: $time                ┃\n┃Version: $version                ┃\n┃Prefix: $prefix ┃\n┃License: $valid                ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+  "info" : "red",
+  "error" : "red"
+}
