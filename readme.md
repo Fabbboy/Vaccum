@@ -23,4 +23,4 @@ Change Welcome messages
 - More customization in general
 
 ## License 📰
-This is a opensource project. That is licensed under the MIT license. You can find the license in the LICENSE file. <a href="">Here</a>
+This is a opensource project. That is licensed under the MIT license. You can find the license in the LICENSE file. <a href="https://github.com/Fabbboy/Vaccum/blob/master/license.md">Here</a>
