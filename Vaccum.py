@@ -3,7 +3,7 @@
 import json
 import random
 from datetime import datetime
-
+from translate import Translator
 now = datetime.now()
 
 from include.sha256 import sha256
@@ -28,13 +28,15 @@ def startup():
     if bool(config["clearOnRun"]):
          os.system('clear')
     welM = config["welcomeMessage"]
-    # keyword: $time, $date, $version, $prefix, $valid
+    # keyword: $time, $date, $version, $prefix, $valid, $red
     welM = welM.replace("$time", now.strftime("%H:%M:%S"))
     welM = welM.replace("$date", now.strftime("%D:%m:%Y"))
     welM = welM.replace("$version", config["version"])
     welM = welM.replace("$prefix", config["prefix"])
     welM = welM.replace("$valid", "Valid")
-    info(welM, False)
+    welM = welM.replace("$sha256", sha256("Vaccum"))
+    trans = Translator(config["lang"])
+    info(trans.translate(welM), False)
     prompt()
 
 
@@ -50,6 +52,15 @@ def prompt():
     pref = pref.replace("$version", config["version"])
     pref = pref.replace("$prefix", config["prefix"])
     pref = pref.replace("$valid", "Valid")
+    pref = pref.replace("$sha256", sha256("Vaccum"))
+    pref = pref.replace("$red", "\033[91m")
+    pref = pref.replace("$green", "\033[92m")
+    pref = pref.replace("$yellow", "\033[93m")
+    pref = pref.replace("$blue", "\033[94m")
+    pref = pref.replace("$magenta", "\033[95m")
+    pref = pref.replace("$cyan", "\033[96m")
+    pref = pref.replace("$white", "\033[97m")
+    pref = pref.replace("$end", "\033[0m")
 
     while True:
         cmd = input(f'{pref} ')

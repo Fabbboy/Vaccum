@@ -5,6 +5,8 @@ import json
 import random
 from datetime import datetime
 
+from translate import Translator
+
 now = datetime.now()
 
 import os
@@ -20,10 +22,12 @@ def startup():
                 "clearOnRun": "True",
                 "welcomeMessage": "\n┏ Welcome to the Vaccum prompt ┓\n┃Date: $date        ┃\n┃Time: $time                ┃\n┃Version: $version                ┃\n┃Prefix: $prefix ┃\n┃License: $valid                ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
                 "info": "blue",
-                "error": "red"
+                "error": "red",
+                "lang": "en"
             }, outfile)
     f = open("config.json", "r")
     config = json.load(f)
+
     if bool(config["clearOnRun"]):
         os.system('clear')
     welM = config["welcomeMessage"]
@@ -34,35 +38,10 @@ def startup():
     welM = welM.replace("$prefix", config["prefix"])
     welM = welM.replace("$valid", "Valid")
     # welM = welM.replace("$license", config["license"])
-    info(welM, False)
+    trans = Translator(config["lang"])
+    info(trans.translate(welM), False)
     prompt()
 
-
-def startup():
-    if not os.path.isfile('config.json'):
-        with open('config.json', 'w') as outfile:
-            json.dump({
-                "_comment": "keyword: $time, $date, $version, $prefix, $valid, $sha256",
-                "version": "1.0.0",
-                "prefix": "[Vaccum $version] >>>",
-                "clearOnRun": "True",
-                "welcomeMessage": "\n┏ Welcome to the Vaccum prompt ┓\n┃Date: $date        ┃\n┃Time: $time                ┃\n┃Version: $version                ┃\n┃Prefix: $prefix ┃\n┃License: $valid                ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
-                "info": "blue",
-                "error": "red"
-            }, outfile)
-    f = open("config.json", "r")
-    config = json.load(f)
-    if bool(config["clearOnRun"]):
-         os.system('clear')
-    welM = config["welcomeMessage"]
-    # keyword: $time, $date, $version, $prefix, $valid
-    welM = welM.replace("$time", now.strftime("%H:%M:%S"))
-    welM = welM.replace("$date", now.strftime("%D:%m:%Y"))
-    welM = welM.replace("$version", config["version"])
-    welM = welM.replace("$prefix", config["prefix"])
-    welM = welM.replace("$valid", "Valid")
-    info(welM, False)
-    prompt()
 
 
 def prompt():
@@ -70,13 +49,21 @@ def prompt():
 
     f = open("config.json", "r")
     config = json.load(f)
-
     pref = config["prefix"]
     pref = pref.replace("$time", now.strftime("%H:%M:%S"))
     pref = pref.replace("$date", now.strftime("%D:%m:%Y"))
     pref = pref.replace("$version", config["version"])
     pref = pref.replace("$prefix", config["prefix"])
     pref = pref.replace("$valid", "Valid")
+    pref = pref.replace("$sha256", sha256("Vaccum"))
+    pref = pref.replace("$red", "\033[91m")
+    pref = pref.replace("$green", "\033[92m")
+    pref = pref.replace("$yellow", "\033[93m")
+    pref = pref.replace("$blue", "\033[94m")
+    pref = pref.replace("$magenta", "\033[95m")
+    pref = pref.replace("$cyan", "\033[96m")
+    pref = pref.replace("$white", "\033[97m")
+    pref = pref.replace("$end", "\033[0m")
 
     while True:
         cmd = input(f'{pref} ')
