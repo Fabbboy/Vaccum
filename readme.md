@@ -1,5 +1,7 @@
 # Vaccum 🌌
+
 <hr>
+<img src="assets/logo.png">
 
 ##What is Vaccum? 🌌
 Vaccum is a tiny prompt written in Python with some useful feature that already exists or in development.
