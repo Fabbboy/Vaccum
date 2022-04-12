@@ -9,7 +9,7 @@ Vaccum is a tiny prompt written in Python with some useful feature that already 
 ## Features ⚙️
 Customize the prompt with your own style. More and more customization is coming.
 Encode strings to SHA256 hash. More encoding features are coming.
-Translation of strings to other languages. Some languages will not be supported.
+
 ## Customize 🖊️
 Change colors 
 Change Prefix

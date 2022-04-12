@@ -17,13 +17,13 @@ def startup():
         with open('config.json', 'w') as outfile:
             json.dump({
                 "_comment": "keyword: $time, $date, $version, $prefix, $valid, $sha256",
-                "version": "1.0.0",
+                "version": "2.1.0",
                 "prefix": "[Vaccum $version] >>>",
                 "clearOnRun": "True",
                 "welcomeMessage": "\n┏ Welcome to the Vaccum prompt ┓\n┃Date: $date        ┃\n┃Time: $time                ┃\n┃Version: $version                ┃\n┃Prefix: $prefix ┃\n┃License: $valid                ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
                 "info": "blue",
                 "error": "red",
-                "lang": "en"
+                "showExtensions": "$endMost: [$yellow$ext$end]",
             }, outfile)
     f = open("config.json", "r")
     config = json.load(f)
@@ -38,10 +38,8 @@ def startup():
     welM = welM.replace("$prefix", config["prefix"])
     welM = welM.replace("$valid", "Valid")
     # welM = welM.replace("$license", config["license"])
-    trans = Translator(config["lang"])
-    info(trans.translate(welM), False)
+    info(welM, False)
     prompt()
-
 
 
 def prompt():
@@ -55,7 +53,7 @@ def prompt():
     pref = pref.replace("$version", config["version"])
     pref = pref.replace("$prefix", config["prefix"])
     pref = pref.replace("$valid", "Valid")
-    pref = pref.replace("$sha256", sha256("Vaccum"))
+    pref = pref.replace("$sha256", encode("Vaccum", "sha256"))
     pref = pref.replace("$red", "\033[91m")
     pref = pref.replace("$green", "\033[92m")
     pref = pref.replace("$yellow", "\033[93m")
@@ -66,6 +64,24 @@ def prompt():
     pref = pref.replace("$end", "\033[0m")
 
     while True:
+        ex = config["showExtensions"]
+        ex = ex.replace("$ext", getMostUsedExtension())
+        ex = ex.replace("$red", "\033[91m")
+        ex = ex.replace("$green", "\033[92m")
+        ex = ex.replace("$yellow", "\033[93m")
+        ex = ex.replace("$blue", "\033[94m")
+        ex = ex.replace("$magenta", "\033[95m")
+        ex = ex.replace("$cyan", "\033[96m")
+        ex = ex.replace("$white", "\033[97m")
+        ex = ex.replace("$end", "\033[0m")
+        ex = ex.replace("$time", now.strftime("%H:%M:%S"))
+        ex = ex.replace("$date", now.strftime("%D:%m:%Y"))
+        ex = ex.replace("$version", config["version"])
+        ex = ex.replace("$prefix", config["prefix"])
+        ex = ex.replace("$valid", "Valid")
+        ex = ex.replace("$sha256", encode("Vaccum", "sha256"))
+        print(ex)
+
         cmd = input(f'{pref} ')
         # split cmd into list
         cmd_list = cmd.split()
@@ -76,14 +92,14 @@ def prompt():
         if len(cmd_list) > 1:
             cmd_list.append("\n")
         # check if cmd_list[0] is "reEnter"
-        if cmd_list[0] == "reEnter" or cmd_list[0] == "reenter":
+        if cmd_list[0] == "reload":
             startup()
         # check if cmd_list[0] == "exit"
 
         if cmd_list[0] == "exit":
             # exit the program
             # print sha256 string with the current time
-            print("Transaction: " + sha256(str(now)))
+            print("Transaction: " + encode(str(now), "sha256"))
             exit(0)
             break
 
@@ -98,20 +114,25 @@ def prompt():
             with open("config.json", "w") as f:
                 json.dump(config, f)
             continue
-        if cmd_list[0] == "sha256":
+        if cmd_list[0] == "encode":
             if len(cmd_list) > 1:
-                if cmd_list[1] == "random" or cmd_list[1] == "r":
-                    print("" + str(sha256(str(random.randint(0, 10000)))))
-                else:
-                    print("" + sha256(cmd_list[1]))
+                out = encode(cmd_list[2], cmd_list[1])
+                print(out)
+            continue
             continue
         if cmd_list[0] == "time":
             print(now)
             continue
-        #check if cmd_list[0] == "cd"
+        # check if cmd_list[0] == "cd"
         if cmd_list[0] == "cd":
             if len(cmd_list) > 1:
-                os.chdir(cmd_list[1])
+                # check if folder exist called cmd_list[1]
+                if os.path.lexists(cmd_list[1]):
+                    if os.path.isdir(cmd_list[1]):
+                        os.chdir(cmd_list[1])
+                    continue
+                else:
+                    exception("Folder does not exist", False)
             continue
         else:
             # check if cmd is nano
@@ -127,7 +148,7 @@ def prompt():
                 else:
                     print('Error: Invalid number of arguments')
             os.system(cmd)
-            #prompt()
+            # prompt()
 
 
 def exception(message, exit):
@@ -214,13 +235,39 @@ def info(message, pre):
             print("\033[94m" + message + "\033[0m")
 
 
-def sha256(msg):
-    # turn msg into a byte string
-    msg = msg.encode()
-    # create a hash object
-    h = hashlib.sha256(msg)
-    # return the hex representation of digest
-    return h.hexdigest()
+def encode(msg, algo):
+    if algo == "md5":
+        return hashlib.md5(msg.encode()).hexdigest()
+    elif algo == "sha1":
+        return hashlib.sha1(msg.encode()).hexdigest()
+    elif algo == "sha256":
+        return hashlib.sha256(msg.encode()).hexdigest()
+    elif algo == "sha512":
+        return hashlib.sha512(msg.encode()).hexdigest()
+    else:
+        return "Invalid algorithm"
+
+
+def getMostUsedExtension():
+    # get all files in directory
+    files = os.listdir(os.getcwd())
+    # get file extension and find the extension used the most ignore folders and hidden files
+    extension = {}
+    for file in files:
+        if file.startswith('.'):
+            continue
+        if os.path.isdir(file):
+            continue
+        if '.' in file:
+            extension[file.split('.')[1]] = extension.get(file.split('.')[1], 0) + 1
+    # return the extension used the most
+    # if there is no extension return None
+    if len(extension) == 0:
+        return str(None)
+    else:
+        return max(extension, key=extension.get)
+
+    return mostUsedExtension
 
 
 if __name__ == "__main__":
